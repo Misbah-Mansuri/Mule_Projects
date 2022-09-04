@@ -1,0 +1,36 @@
+{
+  "configs": [
+    "implementation.xml",
+    "interface.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "trainin-american-ws",
+  "minMuleVersion": "4.1.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": [
+        "api/.designer.json",
+        "api/.gitignore",
+        "api/.repository/.designer.json",
+        "api/.repository/.gitignore",
+        "api/.repository/american-flights-api.raml",
+        "api/.repository/examples/AmericanFlightExample.raml",
+        "api/.repository/examples/AmericanFlightNoIDExample.raml",
+        "api/.repository/exchange_modules/68ef9520-24e9-4cf2-b2f5-620025690913/training-american-flight-data-type/1.0.1/AmericanFlightDataType.raml",
+        "api/.repository/exchange_modules/68ef9520-24e9-4cf2-b2f5-620025690913/training-american-flights-example/1.0.1/AmericanFlightsExample.raml",
+        "api/american-flights-api.raml",
+        "api/examples/AmericanFlightExample.raml",
+        "api/examples/AmericanFlightNoIDExample.raml",
+        "api/exchange_modules/68ef9520-24e9-4cf2-b2f5-620025690913/training-american-flight-data-type/1.0.1/AmericanFlightDataType.raml",
+        "api/exchange_modules/68ef9520-24e9-4cf2-b2f5-620025690913/training-american-flights-example/1.0.1/AmericanFlightsExample.raml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

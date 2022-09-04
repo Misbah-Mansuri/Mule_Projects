@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5c0ef544-3bb7-4a68-8875-25715713571c" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
+	</db:config>
+	<flow name="getFlights" doc:id="fd1b7165-5456-476a-818f-4b25016b4a26" >
+		<choice doc:name="Choice" doc:id="5cbc862d-64f4-4d88-a281-44f1274ac723" >
+			<when expression="#[attributes.queryParams.destination != null and not isBlank(attributes.queryParams.destination)]" >
+				<db:select doc:name="Flights for a destination" doc:id="13978339-a263-4512-9b6b-114f1c42822d" config-ref="Database_Config">
+					<db:sql>SELECT *
+FROM american
+WHERE toAirport = :destination</db:sql>
+					<db:input-parameters ><![CDATA[#[{'destination': attributes.queryParams.destination}]]]></db:input-parameters>
+				</db:select>
+				<logger level="INFO" doc:name="Logger" doc:id="3dfbab62-baac-4ac4-a7bc-b4f7d032a903" />
+			</when>
+			<otherwise >
+				<db:select doc:name="All flights" doc:id="13978339-a263-4512-9b6b-114f1c42822d" config-ref="Database_Config">
+			<db:sql>SELECT *
+FROM american</db:sql>
+		</db:select>
+			</otherwise>
+		</choice>
+		<validation:is-not-empty-collection doc:name="Is not empty collection" doc:id="a523b7e9-7d95-4225-8af8-61f5ec4c81fc">
+			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NO_FLIGHTS_FOUND" />
+		</validation:is-not-empty-collection>
+		<ee:transform doc:name="Database to JSON" doc:id="8a319aca-486a-487b-840a-cf7084d41150" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	ID: payload01.ID,
+	code: (payload01.code1 as String) ++ (payload01.code2 as String),
+	price: payload01.price,
+	departureDate: payload01.takeOffDate as String,
+	origin: payload01.fromAirport,
+	destination: payload01.toAirport,
+	emptySeats: payload01.seatsAvailable,
+	plane: {
+		"type": payload01.planeType,
+		totalSeats: payload01.totalSeats
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getFlightsByID" doc:id="fd1b7165-5456-476a-818f-4b25016b4a26" >
+		<db:select doc:name="Flight for ID" doc:id="108a46d4-2e38-4d3e-adc5-6e974e0b8982" config-ref="Database_Config" >
+			<db:sql >SELECT *
+FROM american
+WHERE ID = :ID</db:sql>
+			<db:input-parameters ><![CDATA[#[{'ID': attributes.uriParams.ID}]]]></db:input-parameters>
+		</db:select>
+		<validation:is-not-empty-collection doc:name="Is not empty collection" doc:id="6311d412-0da8-454f-bc23-c8341cd085f9">
+			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:RESOURCE_NOT_FOUND" />
+		</validation:is-not-empty-collection>
+		<ee:transform doc:name="Database to JSON" doc:id="f1bc6df7-3e54-401b-9dbd-b0524f8e3770" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	ID: payload01.ID,
+	code: (payload01.code1 as String) ++ (payload01.code2 as String),
+	price: payload01.price,
+	departureDate: payload01.takeOffDate as String,
+	origin: payload01.fromAirport,
+	destination: payload01.toAirport,
+	emptySeats: payload01.seatsAvailable,
+	plane: {
+		"type": payload01.planeType,
+		totalSeats: payload01.totalSeats
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postFlight" doc:id="3ca3cef9-65ac-4821-8d19-50aa3d0f78ab" >
+		<set-payload value='{"message": "Flight added (but not really)"}' doc:name="Set Payload" doc:id="41012bef-7afd-4014-a861-ab84fb4d3734" />
+	</flow>
+</mule>

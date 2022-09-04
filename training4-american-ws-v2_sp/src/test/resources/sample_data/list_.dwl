@@ -1,0 +1,16 @@
+%dw 2.0
+output application/java
+---
+[{
+	toAirport: "????",
+	code2: "????",
+	code1: "????",
+	price: 2,
+	takeOffDate: |2003-10-01|,
+	ID: 2,
+	fromAirport: "????",
+	airlineName: "????",
+	planeType: "????",
+	seatsAvailable: 2,
+	totalSeats: 2
+}]
